@@ -209,8 +209,8 @@ public interface IRefreshNowView {
 
 		private int computeDeltaY(final int deltaY, final int scrollY, final boolean isTouchEvent) {
 			if (isTouchEvent && mIsRefreshing) return 0;
-			if (isTouchEvent && scrollY == 0 && deltaY < 0 && !mRefreshMode.hasStart()) return 0;
-			if (isTouchEvent && scrollY == 0 && deltaY > 0 && !mRefreshMode.hasEnd()) return 0;
+			if (isTouchEvent && scrollY <= 0 && deltaY < 0 && !mRefreshMode.hasStart()) return 0;
+			if (isTouchEvent && scrollY >= 0 && deltaY > 0 && !mRefreshMode.hasEnd()) return 0;
 			final float pullPercent = Math.abs((float) scrollY) / mConfig.getMaxOverScrollDistance();
 			final int divisorMin = Math.max(1, mConfig.getMinPullDivisor());
 			final int divisorExtra = Math.max(0, mConfig.getExtraPullDivisor());
