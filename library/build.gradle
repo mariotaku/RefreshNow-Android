@@ -13,6 +13,6 @@ android {
 }
 
 dependencies {
-    compile 'com.github.castorflex.smoothprogressbar:library:0.5.1+'
+    compile 'com.github.castorflex.smoothprogressbar:library:0.5+'
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
