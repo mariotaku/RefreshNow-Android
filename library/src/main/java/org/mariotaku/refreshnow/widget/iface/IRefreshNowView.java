@@ -3,6 +3,7 @@ package org.mariotaku.refreshnow.widget.iface;
 import android.content.Context;
 import android.os.SystemClock;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.OverScroller;
@@ -34,6 +35,8 @@ public interface IRefreshNowView {
     public void setRefreshing(boolean refreshing);
 
     public void setRefreshMode(RefreshMode mode);
+
+    public int getScrollStartOffset();
 
     public static final class Helper implements IRefreshNowView, OnGestureEventListener {
 
@@ -103,6 +106,7 @@ public interface IRefreshNowView {
         public MotionEvent onScroll(final MotionEvent ev, final float distanceX, final float distanceY) {
             final int deltaY = Math.round(distanceY), scrollY = mView.getScrollY();
             final boolean canScrollVertically = mView.canScrollVertically(deltaY);
+            Log.d("RefreshNow", String.format("onScroll, %d:%b %d:%b", deltaY, mView.canScrollVertically(deltaY), scrollY, mView.canScrollVertically(scrollY)));
             final boolean error = scrollY != 0 && mView.canScrollVertically(scrollY);
             final MotionEvent result;
             if (scrollY == 0 && mPreviousScrollY != 0 && canScrollVertically) {
@@ -201,6 +205,11 @@ public interface IRefreshNowView {
             mRefreshMode = mode;
         }
 
+        @Override
+        public int getScrollStartOffset() {
+            return ((IRefreshNowView) mView).getScrollStartOffset();
+        }
+
         private void cancelPullToRefresh() {
             final int scrollY = mView.getScrollY();
             if (scrollY != 0) {
@@ -227,10 +236,12 @@ public interface IRefreshNowView {
 
         private static class SpringBackRunnable implements Runnable {
 
+            private final Helper mHelper;
             private final View mView;
             private final OverScroller mScroller;
 
             SpringBackRunnable(final Helper helper) {
+                mHelper = helper;
                 mView = helper.mView;
                 mScroller = helper.mScroller;
             }

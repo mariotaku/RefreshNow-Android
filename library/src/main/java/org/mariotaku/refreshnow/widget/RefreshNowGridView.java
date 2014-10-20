@@ -40,6 +40,48 @@ public class RefreshNowGridView extends GridView implements IRefreshNowView {
         return super.dispatchTouchEvent(mHelper.processOnTouchEvent(ev));
     }
 
+    /**
+     * Check if this view can be scrolled vertically in a certain direction.
+     *
+     * @param direction Negative to check scrolling up, positive to check scrolling down.
+     * @return true if this view can be scrolled in the specified direction, false otherwise.
+     */
+    public boolean canScrollVertically(int direction) {
+        final int offset = computeVerticalScrollOffset(direction);
+        final int range = computeVerticalScrollRange() - computeVerticalScrollExtent();
+        if (range == 0) return false;
+        if (direction < 0) {
+            return offset > 0;
+        } else {
+            return offset < range - 1;
+        }
+    }
+
+
+    protected int computeVerticalScrollOffset(int direction) {
+        final int firstPosition = getFirstVisiblePosition();
+        final int itemCount = getCount();
+        if (firstPosition >= 0 && getChildCount() > 0) {
+            final View view = getChildAt(0);
+            // Dirty hack for getting correct result. Don't ask me why it works!
+            final int top = view.getTop() + (direction > 0 ? getListPaddingBottom() : -getListPaddingTop());
+            int height = view.getHeight();
+            if (height > 0) {
+                final int numColumns = getNumColumns();
+                final int rowCount = (itemCount + numColumns - 1) / numColumns;
+                // In case of stackFromBottom the calculation of whichRow needs
+                // to take into account that counting from the top the first row
+                // might not be entirely filled.
+                final int oddItemsOnFirstRow = isStackFromBottom() ? ((rowCount * numColumns) -
+                        itemCount) : 0;
+                final int whichRow = (firstPosition + oddItemsOnFirstRow) / numColumns;
+                return Math.max(whichRow * 100 - (top * 100) / height +
+                        (int) ((float) getScrollY() / getHeight() * rowCount * 100), 0);
+            }
+        }
+        return 0;
+    }
+
     @Override
     public void setConfig(final RefreshNowConfig config) {
         mHelper.setConfig(config);
@@ -79,6 +121,11 @@ public class RefreshNowGridView extends GridView implements IRefreshNowView {
     @Override
     public void setRefreshMode(final RefreshMode mode) {
         mHelper.setRefreshMode(mode);
+    }
+
+    @Override
+    public int getScrollStartOffset() {
+        return getListPaddingTop();
     }
 
     @Override

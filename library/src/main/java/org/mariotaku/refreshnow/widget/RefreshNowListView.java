@@ -25,6 +25,51 @@ public class RefreshNowListView extends ListView implements IRefreshNowView {
         mHelper = new Helper(this, context, attrs, defStyle);
     }
 
+    /**
+     * Check if this view can be scrolled vertically in a certain direction.
+     *
+     * @param direction Negative to check scrolling up, positive to check scrolling down.
+     * @return true if this view can be scrolled in the specified direction, false otherwise.
+     */
+    public boolean canScrollVertically(int direction) {
+        final int offset = computeVerticalScrollOffset(direction);
+        final int range = computeVerticalScrollRange() - computeVerticalScrollExtent();
+        if (range == 0) return false;
+        if (direction < 0) {
+            return offset > 0;
+        } else {
+            return offset < range - 1;
+        }
+    }
+
+    private int computeVerticalScrollOffset(int direction) {
+        final int firstPosition = getFirstVisiblePosition();
+        final int childCount = getChildCount();
+        if (firstPosition >= 0 && childCount > 0) {
+            if (isSmoothScrollbarEnabled()) {
+                final View view = getChildAt(0);
+                final int top = view.getTop() + (direction > 0 ? getListPaddingBottom() : -getListPaddingTop());
+                int height = view.getHeight();
+                if (height > 0) {
+                    return Math.max(firstPosition * 100 - (top * 100) / height +
+                            (int) ((float) getScrollY() / getHeight() * getCount() * 100), 0);
+                }
+            } else {
+                int index;
+                final int count = getCount();
+                if (firstPosition == 0) {
+                    index = 0;
+                } else if (firstPosition + childCount == count) {
+                    index = count;
+                } else {
+                    index = firstPosition + childCount / 2;
+                }
+                return (int) (firstPosition + childCount * (index / (float) count));
+            }
+        }
+        return 0;
+    }
+
     @Override
     public RefreshMode getRefreshMode() {
         return mHelper.getRefreshMode();
@@ -79,6 +124,11 @@ public class RefreshNowListView extends ListView implements IRefreshNowView {
     @Override
     public void setRefreshMode(final RefreshMode mode) {
         mHelper.setRefreshMode(mode);
+    }
+
+    @Override
+    public int getScrollStartOffset() {
+        return getListPaddingTop();
     }
 
     @Override
