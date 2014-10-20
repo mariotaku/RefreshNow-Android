@@ -127,11 +127,6 @@ public class RefreshNowListView extends ListView implements IRefreshNowView {
     }
 
     @Override
-    public int getScrollStartOffset() {
-        return getListPaddingTop();
-    }
-
-    @Override
     protected void onScrollChanged(final int l, final int t, final int oldl, final int oldt) {
         super.onScrollChanged(l, t, oldl, oldt);
         mHelper.dispatchOnScrollChanged(l, t, oldl, oldt);

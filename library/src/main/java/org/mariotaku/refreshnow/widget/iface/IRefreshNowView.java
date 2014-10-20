@@ -36,8 +36,6 @@ public interface IRefreshNowView {
 
     public void setRefreshMode(RefreshMode mode);
 
-    public int getScrollStartOffset();
-
     public static final class Helper implements IRefreshNowView, OnGestureEventListener {
 
         private final View mView;
@@ -203,11 +201,6 @@ public interface IRefreshNowView {
         @Override
         public void setRefreshMode(final RefreshMode mode) {
             mRefreshMode = mode;
-        }
-
-        @Override
-        public int getScrollStartOffset() {
-            return ((IRefreshNowView) mView).getScrollStartOffset();
         }
 
         private void cancelPullToRefresh() {
